@@ -14,19 +14,19 @@ const storage = new VueStorage({
       default : [],
     },
     { // 当前设备的唯一标志
-      store     : 'MESSAGE_RECORD',
+      store   : 'MESSAGE_RECORD',
       type    : Array,
       key     : 'id',
       default : [],
     },
     {
-      store     : 'RECENT_CHAT_LIST',
+      store   : 'RECENT_CHAT_LIST',
       type    : Array,
       key     : 'id',
       default : [],
     },
     {
-      store     : 'TEST_SERVER',
+      store   : 'TEST_SERVER',
       type    : Object,
       default : { address: '10.200.112.165', port: '7777' },
     },
