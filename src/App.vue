@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <v-app>
     <test-storage/>
-  </div>
+  </v-app>
 </template>
 
 <script>
