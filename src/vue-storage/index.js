@@ -30,7 +30,7 @@ export default class VueStorage {
     let store;
   
     this.storage.forEach((s) => {
-      if (s.store === name) store = s.key;
+      if (s.store === name) store = s;
     });
     
     return store;
@@ -41,12 +41,15 @@ export default class VueStorage {
     return this.getStorage(store).key || 'id';
   }
   
-  isTypeMatched() {
-  
+  isTypeMatched(store, value) {
+    const storage = this.getStorage(store);
+
+    return !storage || value.constructor === storage.type;
   }
   
   // 插入存储 (同样可以进行 update 操作)
   insert(store, value) {
+    if (!this.isTypeMatched(store, value)) throw new Error('numatched type');
     window.localStorage.setItem(this.attachVersion(store), toString(value));
   }
   
@@ -57,6 +60,7 @@ export default class VueStorage {
   
   // 更新存储
   update(store, value) {
+    if (!this.isTypeMatched(store, value)) throw new Error('numatched type');
     this.insert(store, value);
   }
   
@@ -66,14 +70,14 @@ export default class VueStorage {
   }
   
   /**
-   * 插入一个元素
+   * 插入一个元素(使用该方法，则对应的 store 必须要在初始化文件中定义)
    * @param store
    * @param value
    * @param key
    */
   insertItem(store, value, key = this.primaryKey(store)) {
     if (!value[key]) throw new Error(`the attr of ${key} is required`);
-    const item = this.query(key);
+    const item = this.query(store);
     
     if (!Array.isArray(item)) {
       throw new Error('pleause use func of insert to inset none Array value');
@@ -88,10 +92,16 @@ export default class VueStorage {
       item.push(value);
     }
     
-    return this.insert(key, item);
+    return this.insert(store, item);
   }
   
-  deleteItem(key, id) {
+  /**
+   * 删除数组中的一个ITEM
+   * @param store
+   * @param id 被删除的 item 的建值
+   */
+  deleteItem(store, key) {
+    const item = this.query(store);
   }
 }
 

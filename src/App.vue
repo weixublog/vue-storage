@@ -1,16 +1,18 @@
 <template>
-  <v-app>
-    <test-storage/>
+  <v-app class="ma-0">
+    <v-container>
+      <add-storage/>
+    </v-container>
   </v-app>
 </template>
 
 <script>
-import TestStorage from './src/example/TestStorage.vue';
+import AddStorage from './src/example/AddStorage.vue';
 
 export default {
   name       : 'app',
   components : {
-    TestStorage,
+    AddStorage,
   },
 };
 </script>

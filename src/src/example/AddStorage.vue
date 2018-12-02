@@ -1,21 +1,28 @@
 <template>
   <div id="test-storage">
     <v-layout column>
+      <v-subheader>Insert 相关指令测试</v-subheader>
       <v-flex>
         <v-btn outline
                class="primary"
-               @click="saveTestServer" >TEST_SERVER</v-btn>
+               @click="saveTestServer" >addString</v-btn>
+        <v-btn outline
+               class="primary"
+               @click="saveRecentChatList" >addList</v-btn>
+        <v-btn outline
+               class="primary"
+               @click="saveRecentChatListItem" >addListItem</v-btn>
       </v-flex>
+      
+      <v-divider></v-divider>
       <v-flex>
-        <v-btn outline
-               class="primary"
-               @click="saveRecentChatList" >RECENT_CHAT_LIST</v-btn>
       </v-flex>
     </v-layout>
   </div>
 </template>
 
 <script>
+/* eslint-disable import/no-extraneous-dependencies */
 import uuid from 'uuid';
 
 export default {
@@ -37,6 +44,12 @@ export default {
           date   : Date.now(),
         },
       ],
+      recentChatItem : {
+        id     : uuid.v1(),
+        name   : 'Bob',
+        number : '13226788734',
+        date   : Date.now(),
+      },
     };
   },
   methods : {
@@ -44,7 +57,10 @@ export default {
       this.$storage.insert('TEST_SERVER', this.testServer);
     },
     saveRecentChatList() {
-      this.$storage.insert('RECENT_CHAT_LIST', this.testServer);
+      this.$storage.insert('RECENT_CHAT_LIST', this.recentChatList);
+    },
+    saveRecentChatListItem() {
+      this.$storage.insertItem('RECENT_CHAT_LIST', this.recentChatItem);
     },
   },
 };
