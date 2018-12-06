@@ -38,7 +38,7 @@ export default class VueStorage {
   
   // 获取当前 store 的主键 默认 id
   primaryKey(store) {
-    return this.getStorage(store).key || 'id';
+    return (this.getStorage(store) || {}).key || 'id';
   }
   
   isTypeMatched(store, value) {

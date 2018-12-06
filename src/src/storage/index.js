@@ -28,7 +28,7 @@ const storage = new VueStorage({
     {
       store   : 'TEST_SERVER',
       type    : Object,
-      default : { address: '10.200.112.165', port: '7777' },
+      default : { address: '192.168.112.165', port: '8080' },
     },
   ],
 });
