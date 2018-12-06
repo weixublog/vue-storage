@@ -5,25 +5,23 @@ Vue.use(VueStorage);
 
 const storage = new VueStorage({
   dbName  : 'test-example',
-  version : 'V1', // 可能会保存多版本的数据信息
+  version : 'V1',
   storage : [
-    { // 登录的用户
+    {
       store   : 'ACCOUNT_LIST',
       type    : Array,
       key     : 'id',
       default : [],
     },
-    { // 当前设备的唯一标志
-      store   : 'MESSAGE_RECORD',
-      type    : Array,
-      key     : 'id',
-      default : [],
+    {
+      store   : 'IS_DEV',
+      type    : Boolean,
+      default : true,
     },
     {
-      store   : 'RECENT_CHAT_LIST',
-      type    : Array,
-      key     : 'id',
-      default : [],
+      store   : 'APP_VERSION',
+      type    : Number,
+      default : 1,
     },
     {
       store   : 'TEST_SERVER',

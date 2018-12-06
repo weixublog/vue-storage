@@ -13,7 +13,7 @@
                class="primary"
                @click="saveRecentChatListItem" >addListItem</v-btn>
       </v-flex>
-      
+
       <v-divider></v-divider>
       <v-flex>
       </v-flex>
@@ -49,6 +49,12 @@ export default {
         name   : 'Bob',
         number : '13226788734',
         date   : Date.now(),
+      },
+      account : {
+        id   : uuid.v1(),
+        name : 'ZhangSan',
+        age  : 22,
+        sex  : 'M',
       },
     };
   },
