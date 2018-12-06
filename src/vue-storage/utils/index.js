@@ -2,7 +2,7 @@ export const isJson = (str) => {
   if (typeof str === 'string') {
     try {
       const obj = JSON.parse(str);
-
+      
       
       return typeof obj === 'object' && obj;
     }

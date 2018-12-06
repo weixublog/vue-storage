@@ -15,7 +15,7 @@ export default class VueStorage {
       if (!s.key && s.type === Array) console.warn(`it is better to provide key for ${s.store}`);
       
       const value = this.query(s.store);
-
+      
       if (!value && value !== s.default) {
         this.insert(s.store, s.default);
       }
@@ -28,7 +28,7 @@ export default class VueStorage {
   
   getStorage(name) {
     let store;
-  
+    
     this.storage.forEach((s) => {
       if (s.store === name) store = s;
     });
@@ -43,7 +43,7 @@ export default class VueStorage {
   
   isTypeMatched(store, value) {
     const storage = this.getStorage(store);
-
+    
     return !storage || value.constructor === storage.type;
   }
   
@@ -80,7 +80,7 @@ export default class VueStorage {
     const item = this.query(store);
     
     if (!Array.isArray(item)) {
-      throw new Error('pleause use func of insert to inset none Array value');
+      throw new Error('pleause use func of insert to insert none Array value');
     }
     
     const index = item.findIndex((i) => i[key] === value[key]);
@@ -96,12 +96,78 @@ export default class VueStorage {
   }
   
   /**
-   * 删除数组中的一个ITEM
+   * 删除数组中的一个ITEM (根据主键) only Array
    * @param store
-   * @param id 被删除的 item 的建值
+   * @param value
+   * @param key
    */
-  deleteItem(store, key) {
+  deleteItem(store, value, key = this.primaryKey(store)) {
     const item = this.query(store);
+    
+    if (!Array.isArray(item)) {
+      throw new Error('pleause use func of delete to delete none Array value');
+    }
+    
+    const index = item.findIndex((i) => i[key] === value);
+    
+    if (index > -1) {
+      item.splice(index, 1);
+    }
+    else {
+      throw new Error('the value does not exist');
+    }
+    
+    return this.insert(key, item);
+  }
+  
+  /**
+   * 查询 store 中的 ITEM only Array
+   * @param store
+   * @param value
+   * @param key
+   */
+  queryItem(store, value, key = this.primaryKey(store)) {
+    const item = this.query(store);
+    
+    if (!Array.isArray(item)) {
+      throw new Error('pleause use func of delete to delete none Array value');
+    }
+    
+    const result = [];
+    
+    item.forEach((val) => {
+      if (val[key] === value) {
+        result.push(result);
+      }
+    });
+    
+    return result;
+  }
+  
+  /**
+   * 插入或者更新
+   * @param store
+   * @param value
+   * @param key
+   */
+  insertOrUpdate(store, value, key = this.primaryKey(store)) {
+    if (!value[key]) throw new Error(`the attr of ${key} is required`);
+    const item = this.query(store);
+    
+    if (!Array.isArray(item)) { // none Array
+      return this.insert(store, value);
+    }
+    
+    const index = item.findIndex((i) => i[key] === value[key]);
+    
+    if (index > -1) {
+      item[index] = value;
+    }
+    else {
+      item.push(value);
+    }
+    
+    return this.insert(store, item);
   }
 }
 
