@@ -6626,9 +6626,9 @@ vue-template-es2015-compiler@^1.6.0:
   version "1.6.0"
   resolved "http://registry.npm.taobao.org/vue-template-es2015-compiler/download/vue-template-es2015-compiler-1.6.0.tgz#dc42697133302ce3017524356a6c61b7b69b4a18"
 
-vue2-localstorage@^1.0.1-alpha:
-  version "1.0.1-alpha"
-  resolved "https://registry.yarnpkg.com/vue2-localstorage/-/vue2-localstorage-1.0.1-alpha.tgz#25f5984f3366480bd1b55c318549c175c852f946"
+vue2-localstorage@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/vue2-localstorage/-/vue2-localstorage-1.1.0.tgz#1ce49d94811576280b9bfb60868311bef6a1926b"
 
 vue@^2.5.17:
   version "2.5.17"

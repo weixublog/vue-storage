@@ -6,7 +6,7 @@
 
 ## data type
 
-> we support three data type : String, Boolean , Object , Array
+> the data type we support: String, Boolean , Number, Object , Array 
 
 ## How to use
 ```
@@ -17,7 +17,7 @@ $ yarn add vue2-localstorage
 ## Create Instance
 ```
 import Vue from 'vue';
-import VueStorage from 'vue-storage';
+import VueStorage from 'vue2-localstorage';
 
 Vue.use(VueStorage);
 
@@ -87,6 +87,11 @@ this.$storage.delete('TEST_SERVER');
 > deleteItem (only Array)
 ```
 this.$storage.deleteItem('ACCOUNT_LIST', id);
+```
+
+> clear (only Array)
+```
+this.$storage.clear('ACCOUNT_LIST');
 ```
 
 ### update
