@@ -1,5 +1,5 @@
 import install from './install';
-import { toJSON } from './utils';
+import { toJSON, toString } from './utils';
 
 // import INSERT from './operation/insert';
 // import DELETE from './operation/delete';
