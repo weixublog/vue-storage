@@ -2,7 +2,7 @@
 
 ## Describe
 
-> this plugin provide a easy access to operation localStorage
+> this plugin provide a easy access to operate localStorage
 
 ## data type
 
