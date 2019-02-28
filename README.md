@@ -2,7 +2,7 @@
 
 ## Describe
 
-> this plugin provide a easy access to operate localStorage
+> this plugin provide a easy access to operation localStorage
 
 ## data type
 
@@ -30,6 +30,7 @@ const storage = new VueStorage({
       type    : Array,
       key     : 'id',
       default : [],
+      autoKey : true, // auto key when insert 
     },
     {
       store   : 'IS_DEV',
@@ -86,7 +87,7 @@ this.$storage.delete('TEST_SERVER');
 
 > deleteItem (only Array)
 ```
-this.$storage.deleteItem('ACCOUNT_LIST', id);
+this.$storage.deleteItem('ACCOUNT_LIST', id); // id : id or idList
 ```
 
 > clear (only Array)
@@ -125,6 +126,6 @@ this.$storage.query('TEST_SERVER');
 
 > queryItem (only Array)
 ```
-this.$storage.queryItem('TEST_SERVER', id);
+this.$storage.queryItem('TEST_SERVER', id); // id: id or idList
 ```
 
