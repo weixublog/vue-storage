@@ -1,8 +1,8 @@
 {
   "name": "vue2-localstorage",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "simplify the localstorage operation",
-  "main": "lib/index.js",
+  "main": "vue-storage/index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "lint": "vue-cli-service lint",

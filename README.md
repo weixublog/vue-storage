@@ -2,7 +2,7 @@
 
 ## Describe
 
-> This vue plugin simplify the localStorage operation.
+> This plugin simplify the localStorage operation.
 
 ## data type
 
@@ -112,7 +112,10 @@ Definition: `removeItem(key, removedKeys)`
 
 Example:
 ```
-storage.removeItem('account-list', ['k45olgia0.jszelqpefiq1', 'k45olgia0.412q1m7meov2'])
+storage.removeItem('account-list', [
+        'k45olgia0.jszelqpefiq1',
+        'k45olgia0.412q1m7meov2'
+    ])
 ```
 
 #### updateItem
@@ -121,7 +124,13 @@ Definition: `updateItem(key, valueList)`
 
 Example:
 ```
-storage.updateItem('account-list', [{name: "userC", pass: "1234", id: "k45p0gw40.a194800akpr3"}])
+storage.updateItem('account-list', [
+  { 
+    name: "userC", 
+    pass: "1234", 
+    id: "k45p0gw40.a194800akpr3" 
+  }
+])
 ```
 
 #### updateItem
