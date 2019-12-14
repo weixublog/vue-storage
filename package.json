@@ -1,47 +1,40 @@
 {
-  "name": "vue-storage",
-  "version": "1.1.0",
-  "private": true,
+  "name": "vue2-localstorage",
+  "version": "1.2.0",
+  "description": "simplify the localstorage operation",
+  "main": "lib/index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build": "babel ./vue-storage/index.js -o dist/index.js",
+    "babel": "babel vue-storage --out-dir lib"
   },
   "dependencies": {
     "vue": "^2.6.10"
   },
   "devDependencies": {
+    "@babel/cli": "^7.7.5",
     "@vue/cli-plugin-babel": "^3.0.4",
     "@vue/cli-plugin-eslint": "^3.0.4",
     "@vue/cli-service": "^3.0.4",
-    "@vue/eslint-config-airbnb": "^3.0.3",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0-0",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "webpack-cli": "^3.3.10"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "babel-eslint"
-    }
+  "author": "weixu",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weixublog/vue-storage.git"
   },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
+  "keywords": [
+    "localStorage",
+    "vue"
+  ],
+  "bugs": {
+    "url": "https://github.com/weixublog/vue-storage/issues"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ]
+  "homepage": "https://github.com/weixublog/vue-storage#readme"
 }

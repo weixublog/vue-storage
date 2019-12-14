@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import VueStorage from '../vue-storage';
+import VueStorage from '../../lib';
 
 Vue.use(VueStorage);
 
