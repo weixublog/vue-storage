@@ -1,11 +1,12 @@
 import Vue from 'vue';
-import VueStorage from 'vue2-localstorage';
+import VueStorage from '../vue-storage';
 
 Vue.use(VueStorage);
 
 const storage = new VueStorage({
-  dbName  : 'test-example',
-  version : 'V1',
+  DB_NAME : 'test-example',
+  DE_KEY  : 'id',
+  VERSION : 'V1',
   storage : [
     {
       store   : 'ACCOUNT_LIST',

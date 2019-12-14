@@ -1,15 +1,9 @@
-import 'vuetify/dist/vuetify.min.css';
-
 import Vue from 'vue';
-import Vuetify from 'vuetify';
-import App from './App.vue';
-import storage from './src/storage';
+import storage from './storage';
 
 Vue.config.productionTip = false;
 
-Vue.use(Vuetify);
-
 new Vue({
   storage,
-  render : (h) => h(App),
+  render : (h) => h('div', 'Hello World!'),
 }).$mount('#app');

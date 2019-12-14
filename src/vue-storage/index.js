@@ -1,221 +1,162 @@
 import uuid from 'uuid/v1';
-import install from './install';
 import { toJSON, toString } from './utils';
 
-export default class VueStorage {
+const isDev = process.env === 'development';
+
+class LocalStorage {
   constructor(options = {}) {
-    this.storage = options.storage || [];
-    this.dbName = options.dbName;
-    this.version = options.version || 'V1';
-    this._init();
+    this.DB_NAME = options.DB_NAME || options.dbName;
+    this.DE_KEY = options.DE_KEY || 'id';
+    this.version = options.VERSION || options.version || 'V1';
+    this.storages = options.storages || options.storage || [];
+
+    this.init();
   }
 
-  _init(storage = this.storage) {
-    if (!storage || !Array.isArray(storage)) return;
-    storage.forEach((s) => {
-      if (!s.key && s.type === Array) console.warn(`it is better to provide key for ${s.store}`);
+  get storageMap() {
+    return this.storages.reduce((store, current) => {
+      store[current.store] = current;
 
-      const value = this.query(s.store);
+      return store;
+    }, {});
+  }
 
-      if (!value && value !== s.default) {
-        this.insert(s.store, s.default);
+  init() {
+    this.storages.forEach((storage) => {
+      if (storage.type === Array && !storage.key) storage.key = this.DE_KEY;
+
+      const value = this.get(storage.store);
+
+      if (!value && value !== storage.default) {
+        this.set(storage.store, storage.default);
       }
-      this[s.store] = s.store;
     });
   }
 
-  attachVersion(key) {
-    return `${this.version}_${key}`;
-  }
-
-  getStorage(name) {
-    let store = null;
-
-    this.storage.forEach((s) => {
-      if (s.store === name) store = s;
-    });
-
-    return store;
-  }
-
-  // 获取当前 store 的主键 默认 id
-  primaryKey(store) {
-    return (this.getStorage(store) || {}).key || 'id';
-  }
-
-  isTypeMatched(store, value) {
-    const storage = this.getStorage(store);
+  versioned(key) { return `${this.version}_${key}`; }
+  isTypeMatched(key, value) {
+    const storage = this.storageMap[key];
 
     return !storage || value.constructor === storage.type;
   }
 
-  /**
-   * inert vue to store
-   * @param store
-   * @param value
-   */
-  insert(store, value) {
-    if (!this.isTypeMatched(store, value)) throw new Error('numatched type');
-    window.localStorage.setItem(this.attachVersion(store), toString(value));
+  // for signal target
+  set(key, value) {
+    if (isDev && !this.isTypeMatched(key, value)) throw new TypeError('Wrong Type!');
 
-    return value;
+    window.localStorage.setItem(this.versioned(key), toString(value));
+
+    return this;
   }
 
-  /**
-   * insert item to defined store ( only Array )
-   * @param store
-   * @param value
-   * @param key
-   */
-  insertItem(store, value, key) {
-    const storage = this.getStorage(store) || {};
-    const pk = storage.key || 'id';
+  get(key) { return toJSON(window.localStorage.getItem(this.versioned(key))); }
 
-    if (storage && storage.autoKey) { // 自动赋值
-      value[pk] = value[pk] || uuid();
-    }
-    key = key || pk;
+  remove(key) {
+    window.localStorage.removeItem(this.versioned(key));
 
-    if (!value[key]) throw new Error(`the attr of ${key} is required`);
-    const item = this.query(store);
-
-    if (!Array.isArray(item)) {
-      throw new Error('please use func of insert to insert none Array value');
-    }
-
-    const index = item.findIndex((i) => i[key] === value[key]);
-
-    if (index > -1) {
-      throw new Error('the value exist');
-    }
-    else {
-      item.push(value);
-    }
-
-    return this.insert(store, item);
+    return this;
   }
 
-  /**
-   * delete the val of store
-   * @param store
-   * @private
-   */
-  delete(store) {
-    window.localStorage.removeItem(this.attachVersion(store));
+  // for array target
+  insertItem(key, value) {
+    const storage = this.storageMap[key];
+
+    if (!storage) throw new ReferenceError('No storage matched!');
+    if (!value[storage.key]) {
+      if (!storage.autoKey) value[storage.key] = uuid();
+      else throw new ReferenceError('No primary Key!');
+    }
+
+    const itemList = this.get(key);
+    const index = itemList.findIndex((i) => i[storage.key] === value[storage.key]);
+
+    if (index !== -1) throw new ReferenceError('The value exist already!');
+    else itemList.push(value);
+
+    return this.set(key, itemList);
+  }
+
+  insertOrUpdate(key, value) {
+    try {
+      this.insertItem(key, value);
+    }
+    catch (e) {
+      this.updateItem(key, value);
+    }
+
+    return this;
   }
 
 
-  /**
-   * clear Array store
-   * @param store
-   */
-  clear(store) {
-    const storage = this.getStorage(store);
+  removeItem(key, removedKeys) {
+    const storage = this.storageMap[key];
 
-    if (!storage) throw new Error(`the store of ${store} is not exist`);
-    if (storage.type !== Array) throw new Error('you are not allow to use clear on un Array');
-    this.insert(store, []);
+    if (!storage) throw new ReferenceError('No storage matched!');
+    const itemList = this.get(key);
+
+    if (!Array.isArray(removedKeys)) removedKeys = [ removedKeys ];
+
+    const result = itemList.filter((i) => removedKeys.some((v) => v !== i[storage.key])) || [];
+
+    return this.set(key, result);
   }
 
-  /**
-   * 删除数组中的一个ITEM (根据主键) only Array
-   * @param store
-   * @param value Key Or KeyList
-   * @param key
-   */
-  deleteItem(store, value, key = this.primaryKey(store)) {
-    const item = this.query(store);
+  updateItem(key, value) {
+    const storage = this.storageMap[key];
 
-    if (!Array.isArray(item)) {
-      throw new Error('please use func of delete to delete none Array value');
-    }
+    if (!storage) throw new ReferenceError('No storage matched!');
+    if (!value[storage.key]) throw new ReferenceError('Value\'s key not existed!');
 
-    if (!Array.isArray(value)) {
-      value = [ value ];
-    }
+    const itemList = this.get(key);
+    const index = itemList.findIndex((item) => item[storage.key] === value[storage.key]);
 
-    const result = item.filter((i) => value.some((v) => v !== i[key])) || [];
+    if (index > -1) itemList[index] = value;
 
-    return this.insert(store, result);
+    return index === -1 ? this : this.set(key, itemList);
   }
 
+  getItem(key, value) {
+    const storage = this.storageMap[key];
 
-  /**
-   * maybe the same as insert
-   */
-  update(store, value) {
-    if (!this.isTypeMatched(store, value)) throw new Error('numatched type');
-    this.insert(store, value);
+    if (!storage) throw new ReferenceError('No storage matched!');
+    const itemList = this.get(key);
+
+    return itemList.find((item) => item[storage.key] === value);
   }
 
-  /**
-   * insert or update the item of item (only Array)
-   * @param store
-   * @param value
-   * @param key
-   */
-  insertOrUpdate(store, value, key) {
-    const storage = this.getStorage(store) || {};
-    const pk = storage.key || 'id';
+  clear(key) {
+    const storage = this.storageMap[key];
 
-    if (storage && storage.autoKey) { // 自动赋值
-      value[pk] = value[pk] || uuid();
-    }
-    key = key || pk;
+    if (!storage || storage.type !== Array) throw new ReferenceError('No storage matched!');
 
-    if (!value[key]) {
-      throw new Error(`the attr of ${key} is required`);
-    }
-    const item = this.query(store);
-
-    if (!Array.isArray(item)) { // none Array
-      return this.insert(store, value);
-    }
-
-    const index = item.findIndex((i) => i[key] === value[key]);
-
-    if (index > -1) {
-      item[index] = value;
-    }
-    else {
-      item.push(value);
-    }
-
-    return this.insert(store, item);
+    return this.set(key, []);
   }
+  // For Adapter
+  insert(key, value) { return this.set(key, value); }
+  delete(key) { return this.remove(key); }
+  update(key, value) { return this.insert(key, value); }
+  query(key) { return this.get(key); }
 
-  query(store) {
-    return toJSON(window.localStorage.getItem(this.attachVersion(store)));
-  }
-
-
-  /**
-   * 查询 store 中的 ITEM only Array
-   * @param store
-   * @param value key Or KeyList
-   * @param key
-   */
-  queryItem(store, value, key = this.primaryKey(store)) {
-    const item = this.query(store);
-
-    if (!Array.isArray(item)) {
-      throw new Error('please use func of delete to delete none Array value');
-    }
-
-    if (!Array.isArray(value)) {
-      value = [ value ];
-    }
-
-    const result = [];
-
-    item.forEach((val) => {
-      if (value.some((v) => v === val[key])) {
-        result.push(val);
-      }
-    });
-
-    return result.length === 1 ? result[0] : result;
-  }
+  queryItem(key, value) { return this.getItem(key, value); }
 }
 
-VueStorage.install = install;
+let _VUE;
+
+function install(VUE) {
+  if (install.installed && VUE === _VUE) return;
+
+  install.installed = true;
+  _VUE = VUE;
+
+  function initLocalStorage() {
+    const options = this.$options;
+
+    this.$storage = options.storage || (options.parent && options.parent.$storage);
+  }
+
+  VUE.mixin({ beforeCreate: initLocalStorage });
+}
+
+LocalStorage.install = install;
+
+export default LocalStorage;
