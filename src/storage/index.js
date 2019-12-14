@@ -10,6 +10,7 @@ const storage = new VueStorage({
   storage : [
     {
       store   : 'account-list',
+      autoKey : true, // auto provided primary key for every item
       type    : Array,
       key     : 'id',
       default : [],
@@ -31,3 +32,4 @@ if (process.env.NODE_ENV === 'development') {
   window.storage = storage;
 }
 export default storage;
+

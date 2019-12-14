@@ -72,7 +72,7 @@ class LocalStorage {
       if (index !== -1) throw new ReferenceError('The value exist already!');
       else itemList.push(value);
       if (!value[storage.key]) {
-        if (!storage.autoKey) value[storage.key] = uuid(itemList.length);
+        if (storage.autoKey) value[storage.key] = uuid(itemList.length);
         else throw new ReferenceError('No primary Key!');
       }
     };
@@ -104,7 +104,7 @@ class LocalStorage {
 
     if (!Array.isArray(removedKeys)) removedKeys = [ removedKeys ];
 
-    const result = itemList.filter((i) => removedKeys.some((v) => v !== i[storage.key])) || [];
+    const result = itemList.filter((item) => !removedKeys.some((pk) => pk === item[storage.key])) || [];
 
     return this.set(key, result);
   }

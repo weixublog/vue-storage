@@ -2,11 +2,11 @@
 
 ## Describe
 
-> this plugin provide a easy access to operation localStorage
+> This vue plugin simplify the localStorage operation.
 
 ## data type
 
-> the data type we support: String, Boolean , Number, Object , Array 
+> All JS type
 
 ## How to use
 ```
@@ -22,30 +22,26 @@ import VueStorage from 'vue2-localstorage';
 Vue.use(VueStorage);
 
 const storage = new VueStorage({
-  dbName  : 'test-example',
-  version : 'V1', 
+  DB_NAME : 'test-example',
+  DE_KEY  : 'id', // array item's default key
+  VERSION : 'v1',
   storage : [
-    { 
-      store   : 'ACCOUNT_LIST',
-      type    : Array,
-      key     : 'id',
-      default : [],
-      autoKey : true, // auto key when insert 
+    {
+      store   : 'account-list', 
+      autoKey : true, // auto provided primary key for every item
+      type    : Array, // store target's type
+      key     : 'id', // like every item's primary key (set as DE_KEY if not provided)
+      default : [], // default value (set as [] if not provided)
     },
     {
-      store   : 'IS_DEV',
+      store   : 'remember-password',
       type    : Boolean,
       default : true,
     },
     {
-      store   : 'APP_VERSION',
-      type    : Number,
-      default : 1,
-    },
-    {
-      store   : 'TEST_SERVER',
+      store   : 'join-info',
       type    : Object,
-      default : { address: '192.168.112.165', port: '8080' },
+      default : { account: '13123371892', password: '123456' },
     },
   ],
 });
@@ -57,75 +53,94 @@ export default storage;
 
 ```
 
-## the methods are as following
+## Params
 
-### insert
+DB_NAME : database's name
 
-> insert
+DE_KAY : default key (For Array type)
 
-```
-this.$storage.insert('TEST_SERVER', { address: '10.200.112.165', port: '7777' });
-```
+VERSION : database version
 
-> insertItem (only Array)
-```
-this.$storage.insertItem('ACCOUNT_LIST', 
-      {
-        id   : uuid.v1(),
-        name : 'ZhangSan',
-        age  : 22,
-        sex  : 'M',
-      });
-```
+storage : store items
 
-### delete
+## Operation
 
-> delete
-```
-this.$storage.delete('TEST_SERVER');
-```
+### Normal
 
-> deleteItem (only Array)
-```
-this.$storage.deleteItem('ACCOUNT_LIST', id); // id : id or idList
-```
+| Method | Example | Description |
+| :---: | :--- | --- |
+| get | this.$storage.get('account-list') | Like localStorage.getItem |
+| set | this.$storage.set('join-info', {"account":"admin","password":"123456"}) | Like localStorage.setItem |
+| remove | storage.remove('remember-password') | Like localStorage.removeItem |
 
-> clear (only Array)
-```
-this.$storage.clear('ACCOUNT_LIST');
-```
+Tip: you can operate object directly.
 
-### update
+### Advance
 
-> update
+The plugin add some methods to handler Array 
+
+#### insertItem
+
+Definition: `insertItem(key, valueList)`
+
+Example:
 ```
-this.$storage.update('TEST_SERVER', { address: '192.168.112.165', port: '8080' });
+this.$storage.insertItem('account-list', [
+  {name:'userA', pass: '1234'}, 
+  {name:'userB', pass: '1234'}
+]);
 ```
 
-> insertOrUpdate 
+#### insertOrUpdate
+
+Definition: `insertOrUpdate(key, valueList)`
+
+Example:
 ```
-// Array
-this.$storage.insertOrUpdate('ACCOUNT_LIST', 
-      {
-        id   : uuid.v1(),
-        name : 'Lisi',
-        age  : 26,
-        sex  : 'M',
-      });
-      
-// un Array
-this.$storage.insertOrUpdate('TEST_SERVER', { address: '192.168.1.1', port: '8088' });
+this.$storage.insertItem('account-list', [
+  {name:'userA', pass: '1234', id: "k45olgia0.jszelqpefiq1"}, // may be updated 
+  {name:'userB', pass: '1234'}
+]);
 ```
 
-### query
+if item provide the same key (such as id), item will be updated
+if not provide key or unique key , item will be inserted
 
-> query
+#### removeItem
+
+Definition: `removeItem(key, removedKeys)`
+
+Example:
 ```
-this.$storage.query('TEST_SERVER');
+storage.removeItem('account-list', ['k45olgia0.jszelqpefiq1', 'k45olgia0.412q1m7meov2'])
 ```
 
-> queryItem (only Array)
+#### updateItem
+
+Definition: `updateItem(key, valueList)`
+
+Example:
 ```
-this.$storage.queryItem('TEST_SERVER', id); // id: id or idList
+storage.updateItem('account-list', [{name: "userC", pass: "1234", id: "k45p0gw40.a194800akpr3"}])
 ```
 
+#### updateItem
+
+Definition: `getItem(key, value)`
+
+Example:
+```
+storage.getItem('account-list', 'k45p9t7r0.8n3hntpabfm5')
+```
+
+get value by primary key
+
+#### clear
+
+Definition: `clear(key)`
+
+Example:
+```
+storage.clear('account-list')
+```
+the account-list's value will be set as `[]`
