@@ -1,7 +1,4 @@
-import uuid from 'uuid/v1';
-import { toJSON, toString } from './utils';
-
-const isDev = process.env === 'development';
+import { toJSON, toString, uuid } from './utils';
 
 class LocalStorage {
   constructor(options = {}) {
@@ -23,7 +20,10 @@ class LocalStorage {
 
   init() {
     this.storages.forEach((storage) => {
-      if (storage.type === Array && !storage.key) storage.key = this.DE_KEY;
+      if (storage.type === Array) {
+        if (!storage.key) storage.key = this.DE_KEY;
+        if (!storage.default) storage.default = [];
+      }
 
       const value = this.get(storage.store);
 
@@ -42,7 +42,7 @@ class LocalStorage {
 
   // for signal target
   set(key, value) {
-    if (isDev && !this.isTypeMatched(key, value)) throw new TypeError('Wrong Type!');
+    if (!this.isTypeMatched(key, value)) throw new TypeError('Wrong Type!');
 
     window.localStorage.setItem(this.versioned(key), toString(value));
 
@@ -58,32 +58,40 @@ class LocalStorage {
   }
 
   // for array target
-  insertItem(key, value) {
+  insertItem(key, valueList) {
     const storage = this.storageMap[key];
 
     if (!storage) throw new ReferenceError('No storage matched!');
-    if (!value[storage.key]) {
-      if (!storage.autoKey) value[storage.key] = uuid();
-      else throw new ReferenceError('No primary Key!');
-    }
+    if (!Array.isArray(valueList)) valueList = [ valueList ];
 
     const itemList = this.get(key);
-    const index = itemList.findIndex((i) => i[storage.key] === value[storage.key]);
+    
+    const insert = (value) => {
+      const index = itemList.findIndex((i) => i[storage.key] === value[storage.key]);
+      
+      if (index !== -1) throw new ReferenceError('The value exist already!');
+      else itemList.push(value);
+      if (!value[storage.key]) {
+        if (!storage.autoKey) value[storage.key] = uuid(itemList.length);
+        else throw new ReferenceError('No primary Key!');
+      }
+    };
 
-    if (index !== -1) throw new ReferenceError('The value exist already!');
-    else itemList.push(value);
+    valueList.forEach((value) => insert(value));
 
     return this.set(key, itemList);
   }
 
-  insertOrUpdate(key, value) {
-    try {
-      this.insertItem(key, value);
-    }
-    catch (e) {
-      this.updateItem(key, value);
-    }
-
+  insertOrUpdate(key, valueList) {
+    valueList.forEach((value) => {
+      try {
+        this.insertItem(key, [ value ]);
+      }
+      catch (e) {
+        this.updateItem(key, [ value ]);
+      }
+    });
+    
     return this;
   }
 
@@ -101,18 +109,24 @@ class LocalStorage {
     return this.set(key, result);
   }
 
-  updateItem(key, value) {
+  updateItem(key, valueList) {
     const storage = this.storageMap[key];
 
     if (!storage) throw new ReferenceError('No storage matched!');
-    if (!value[storage.key]) throw new ReferenceError('Value\'s key not existed!');
+    if (!Array.isArray(valueList)) valueList = [ valueList ];
 
     const itemList = this.get(key);
-    const index = itemList.findIndex((item) => item[storage.key] === value[storage.key]);
+    
+    const update = (value) => {
+      if (!value[storage.key]) throw new ReferenceError('Value\'s key not existed!');
+      const index = itemList.findIndex((item) => item[storage.key] === value[storage.key]);
 
-    if (index > -1) itemList[index] = value;
-
-    return index === -1 ? this : this.set(key, itemList);
+      if (index > -1) itemList[index] = value;
+    };
+    
+    valueList.forEach((value) => update(value));
+    
+    return this.set(key, itemList);
   }
 
   getItem(key, value) {
